@@ -6,6 +6,10 @@ from langchain_community.vectorstores import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain.prompts import PromptTemplate
 from app.config import CHROMA_DIR, EMBEDDING_MODEL, LLM_MODEL
+from langchain.retrievers.document_compressors import CrossEncoderReranker
+from langchain_community.cross_encoders import HuggingFaceCrossEncoder
+from langchain.retrievers import ContextualCompressionRetriever
+from app.config import RERANKER_MODEL
 
 # --- Prompts (Same as before) ---
 condense_question_template = """
@@ -49,7 +53,23 @@ def get_rag_chain():
         embedding_function=embeddings
     )
 
-    retriever = vectordb.as_retriever(search_kwargs={"k": 3})
+    # retriever = vectordb.as_retriever(search_kwargs={"k": 3})
+
+    # 1. Base Retriever: Fetch a broad context of top 20 chunks
+    base_retriever = vectordb.as_retriever(search_kwargs={"k": 20})
+
+    # 2. Cross-Encoder: Initialize the BGE re-ranking model
+    model = HuggingFaceCrossEncoder(model_name=RERANKER_MODEL)
+    
+    # 3. Compressor: Score the 30 chunks and keep only the top 5
+    compressor = CrossEncoderReranker(model=model, top_n=5)
+
+    # 4. Final Retriever: Combine them
+    retriever = ContextualCompressionRetriever(
+        base_compressor=compressor, 
+        base_retriever=base_retriever
+    )
+
 
     llm = Ollama(model=LLM_MODEL)
 

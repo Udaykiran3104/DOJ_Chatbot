@@ -3,12 +3,29 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Tuple, Optional, Literal
 from app.rag_chain import get_rag_chain
-from app.translator import detect_language_with_llm, translate_to_english, translate_to_native
+from app.translator import detect_language, translate_to_english, translate_to_native
 from datetime import datetime, timezone
 import csv
 from pathlib import Path
+from contextlib import asynccontextmanager
 
 app = FastAPI(title="DoJ RAG Chatbot")
+
+qa_chain = None
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    global qa_chain
+    print("Initializing RAG chain...")
+    qa_chain = get_rag_chain()
+    print("RAG chain ready.")
+    yield
+    # Clean up resources if needed upon shutdown
+
+app = FastAPI(title="DoJ RAG Chatbot", lifespan=lifespan)
+
+# ... Leave your CORS setup here as it was ...
+
 
 # ==========================================
 # CRITICAL FIX: CORS MIDDLEWARE SETUP
@@ -28,7 +45,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-qa_chain = None
+
+
 
 class ChatRequest(BaseModel):
     query: str
@@ -50,12 +68,7 @@ class FeedbackRequest(BaseModel):
 
 FEEDBACK_CSV_PATH = Path(__file__).resolve().parent.parent / "feedback.csv"
 
-@app.on_event("startup")
-def startup_event():
-    global qa_chain
-    print("Initializing RAG chain...")
-    qa_chain = get_rag_chain()
-    print("RAG chain ready.")
+
 
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
@@ -65,7 +78,7 @@ def chat(request: ChatRequest):
     try:
         # 1. Detect Language
         print(f"Original Query: {request.query}")
-        detected_lang = detect_language_with_llm(request.query)
+        detected_lang = detect_language(request.query)
         print(f"Detected Language: {detected_lang}")
 
         # 2. Translate to English (if needed)
