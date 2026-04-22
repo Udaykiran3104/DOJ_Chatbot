@@ -148,6 +148,8 @@ venv.bak/
 # Data folder with large PDF files
 backend/data/
 
+docs
+
 # Spyder project settings
 .spyderproject
 .spyproject

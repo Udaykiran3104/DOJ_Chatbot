@@ -23,3 +23,10 @@ ollama==0.3.0
 # Translation & Language Detection
 deep-translator==1.11.4
 langdetect==1.0.9
+
+# Authentication
+google-auth
+PyJWT
+
+
+email-validator

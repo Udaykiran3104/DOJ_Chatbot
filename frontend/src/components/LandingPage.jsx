@@ -1,9 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Scale, ArrowRight, Sparkles, ShieldCheck, Award, Users, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 
-export function LandingPage({ onEnter }) {
+export function LandingPage() {
+  const navigate = useNavigate();
   const { isDark, toggleTheme } = useTheme();
 
   const containerVariants = {
@@ -215,7 +217,7 @@ export function LandingPage({ onEnter }) {
         {/* CTA Button - Centered after tagline */}
         <motion.div variants={itemVariants} className="mb-6 md:mb-8 lg:mb-10">
           <motion.button
-            onClick={onEnter}
+            onClick={() => navigate('/auth')}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="group relative px-6 py-3 sm:px-8 sm:py-4 md:px-10 md:py-4 bg-gradient-to-r from-doj-blue to-blue-700 dark:from-doj-blue dark:to-blue-800 text-white rounded-full font-bold text-base sm:text-lg md:text-xl shadow-2xl overflow-hidden"

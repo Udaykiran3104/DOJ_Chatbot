@@ -2,8 +2,9 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, ShieldCheck, Scale, Moon, Sun } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { ProfileDropdown } from './ProfileDropdown';
 
-const Header = ({ showBackToHome = false, onBackToHome }) => {
+const Header = ({ showBackToHome = false, onBackToHome, onLogout }) => {
   const { isDark, toggleTheme } = useTheme();
   const emblemFilter = isDark
     ? 'brightness(0) invert(1) drop-shadow(0 0 2px rgba(255, 255, 255, 0.8))'
@@ -14,7 +15,7 @@ const Header = ({ showBackToHome = false, onBackToHome }) => {
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="bg-white dark:bg-doj-dark-secondary shadow-lg dark:shadow-2xl sticky top-0 z-50 border-b border-gray-200 dark:border-doj-dark-border backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95"
+      className="bg-white dark:bg-doj-dark-secondary shadow-lg dark:shadow-2xl fixed top-0 left-0 right-0 z-50 border-b border-gray-200 dark:border-doj-dark-border backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95"
     >
       <div className="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -115,6 +116,8 @@ const Header = ({ showBackToHome = false, onBackToHome }) => {
               )}
             </AnimatePresence>
           </motion.button>
+
+          <ProfileDropdown onLogout={onLogout} />
         </div>
       </div>
     </motion.header>

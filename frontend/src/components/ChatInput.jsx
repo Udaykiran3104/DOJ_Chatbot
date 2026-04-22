@@ -2,14 +2,18 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Mic, Scale } from 'lucide-react';
 
-const ChatInput = ({ input, setInput, handleSend, isLoading }) => {
+const ChatInput = ({ value, onChange, onSend, isLoading }) => {
   const [isFocused, setIsFocused] = useState(false);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleSend();
+      onSend(value);
     }
+  };
+
+  const handleSendClick = () => {
+    onSend(value);
   };
 
   return (
@@ -17,7 +21,7 @@ const ChatInput = ({ input, setInput, handleSend, isLoading }) => {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, ease: "easeOut" }}
-      className="bg-white dark:bg-doj-dark-secondary p-4 border-t border-gray-200 dark:border-doj-dark-border sticky bottom-0 z-10 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 shadow-lg"
+      className="bg-white dark:bg-doj-dark-secondary p-4 border-t border-gray-200 dark:border-doj-dark-border fixed bottom-0 left-0 right-0 z-40 backdrop-blur-sm bg-opacity-95 dark:bg-opacity-95 shadow-lg"
     >
       <div className="max-w-5xl mx-auto relative flex items-end gap-3">
         <motion.div
@@ -29,8 +33,8 @@ const ChatInput = ({ input, setInput, handleSend, isLoading }) => {
           className="relative flex-1 bg-gray-50 dark:bg-doj-dark-tertiary border-2 border-gray-300 dark:border-doj-dark-border rounded-2xl focus-within:border-doj-blue dark:focus-within:border-doj-orange transition-all"
         >
           <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
             onKeyDown={handleKeyPress}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -50,12 +54,12 @@ const ChatInput = ({ input, setInput, handleSend, isLoading }) => {
         </motion.div>
 
         <motion.button
-          whileHover={input.trim() && !isLoading ? { scale: 1.05 } : {}}
-          whileTap={input.trim() && !isLoading ? { scale: 0.95 } : {}}
-          onClick={() => handleSend()}
-          disabled={!input.trim() || isLoading}
+          whileHover={value.trim() && !isLoading ? { scale: 1.05 } : {}}
+          whileTap={value.trim() && !isLoading ? { scale: 0.95 } : {}}
+          onClick={handleSendClick}
+          disabled={!value.trim() || isLoading}
           className={`relative p-4 rounded-full shadow-lg flex items-center justify-center transition-all duration-200 overflow-hidden ${
-            input.trim() && !isLoading
+            value.trim() && !isLoading
               ? 'bg-gradient-to-br from-doj-blue to-blue-700 dark:from-doj-blue dark:to-blue-800 text-white hover:shadow-xl'
               : 'bg-gray-200 dark:bg-doj-dark-tertiary text-gray-400 dark:text-gray-600 cursor-not-allowed'
           }`}
@@ -81,7 +85,7 @@ const ChatInput = ({ input, setInput, handleSend, isLoading }) => {
               </motion.div>
             )}
           </AnimatePresence>
-          {input.trim() && !isLoading && (
+          {value.trim() && !isLoading && (
             <motion.div
               className="absolute inset-0 bg-white opacity-20"
               animate={{
